@@ -20,3 +20,10 @@ Author gmail: kiu1xruna@gmail.com
 
 
 Don't Secondary distribution is prohibited
+
+
+Usage:::
+
+/title <titlename>
+default is use $1000000 money.
+It is configurable.
