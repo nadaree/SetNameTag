@@ -17,3 +17,6 @@ version [2.0, 2.1, -2, -2.1]
    Name after the title.
 
 Author gmail: kiu1xruna@gmail.com
+
+
+Don't Secondary distribution is prohibited
