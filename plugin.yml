@@ -1,12 +1,12 @@
 ---
 name: CreateNameTag
-author: Runa_Ja
-version: 2.1
+author: Shigure
+version: 2.8
 api: 3.0.0
 main: CONSOLE\CreateNameTag\Main
 commands:
   title:
-    description: SetNameTagCommand
+    description: Original your title
 permissions:
  title:
   default: true
