@@ -16,19 +16,7 @@ $t->getServer()->getPluginManager()->registerEvents($t, $t);
 if(!file_exists($t->getDataFolder())){mkdir($t->getDataFolder(),0774,true);}
 $t->saveDefaultConfig();
 
-if($t->getServer()->getPluginManager()->getPlugin("EconomyAPI") != null){
-$t->EconomyAPI = $t->getServer()->getPluginManager()->getPlugin("EconomyAPI");
-$t->getLogger()->info("§bEconomyAPIの検出を完了");
-//$t->getLogger()->info("§bEconomyAPI is found!");
-}else{
-	if ($t->getServer()->getPluginManager()->getPlugin("PocketMoney") != null){
-		$this->PocketMoney = $this->getServer()->getPluginManager()->getPlugin("PocketMoney");
-		$this->getLogger()->info("PocketMoneyを検出しました。");
-		//$t->getLogger()->info("§bPocketMOney is found!");
-	}else{
-$t->getLogger()->critical("EconomyAPI/PocketMoneyが見つかりません。終了します");
-//$t->getLogger()->critical("EconomyAPI/pocketmoney is not found. plugin disable:(");
-$t->getServer()->getPluginManager()->disablePlugin($this);}}
+$this->CheckMoneyplugins();
 
 $t->config = new Config($t->getDataFolder(). "config.yml", Config::YAML);
 $t->user = new Config($t->getDataFolder()."users.yml",Config::YAML);
@@ -36,47 +24,49 @@ $bt1 = $this->config->get("Bantitle1");
 $bt2 = $this->config->get("Bantitle2");
 $bt3 = $this->config->get("Bantitle3");
 $this->getServer()->getLogger()->info("§4禁止ワード: $bt1 / $bt2 / $bt3");
-//$this->getServer()->getLogger()->info("Bantitle: $bt1 / $bt2 / $bt3");
+//$this->getServer()->getLogger()->info("Bandegree: $bt1 / $bt2 / $bt3");
 }
-public function onCommand(CommandSender $use, Command $cmd, $label, array $args){
-$cost = $this->config->get("金額");$name = $use->getName();
+public function onCommand(CommandSender $sender, Command $cmd, $label, array $args){
+$cost = $this->config->get("金額");$name = $sender->getName();
 $ww = $this->config->get("left");$w = $this->config->get("right");
 if($this->getServer()->getPluginManager()->getPlugin("EconomyAPI") != null){
 	$this->EconomyAPI = $this->getServer()->getPluginManager()->getPlugin("EconomyAPI");
-$money = EconomyAPI::getInstance()->myMoney($use->getName());
+$money = EconomyAPI::getInstance()->myMoney($sender->getName());
 }else{if ($this->getServer()->getPluginManager()->getPlugin("PocketMoney") != null){
 	$this->PocketMoney = $this->getServer()->getPluginManager()->getPlugin("PocketMoney");
-$money = PocketMoney::getInstance()->getMoney($use->getName());
+$money = PocketMoney::getInstance()->getMoney($sender->getName());
 }
 }
 //////////////////
 /*>>[Messages]<<*/
 //////////////////
-$m1 = "*/title <称号名>";
-$m2 = "称号を作るには$".$cost."を使います";
-$m3 = "お金が足りません。";
-$m4 = "その称号名は利用できません。";
+$m1 = "§c*§e/degree §b<§e称号名§b>";
+$m2 = "§a称号を作るには$".$cost."を使います";
+$m3 = "§bお金が足りません。";
+$m4 = "§cその称号名は利用できません。";
+$m5 = "§c本当に称号を消去しますか?(消す場合は§e/undegree <yes>§c)";
+$m6 = "§a称号を消去し、代わりに$1000000を手に入れました。";
 //English:
 /*
-$m1 = "§a>§etitle <titlename>";
-$m2 = "§b>§eCreateTitle usemoney is $".$cost;
+$m1 = "§a>§edegree <degreename>";
+$m2 = "§b>§eCreatedegree usemoney is $".$cost;
 $m3 = "Your Your short of money.";
-$m4 = "your write title is Not available";
+$m4 = "your write degree is Not available";
 */
 
-if($use instanceof Player){
+if($sender instanceof Player){
 switch($cmd->getName()){
 
-	case "title":
+	case "degree":
 	$string = implode(" ", $args);
 	if (empty($args[0])){
-		$use->sendMessage($m1);
-		$use->sendMessage($m2);
-	    //$use->sendMessage("注意: 一度買ったらお金は戻ってきません。");
+		$sender->sendMessage($m1);
+		$sender->sendMessage($m2);
+	    //$sender->sendMessage("注意: 一度買ったらお金は戻ってきません。");
 		return;
 	}
 	if (stripos($args[0], "§k") === false) {}else{
-		$use->sendMessage($m4);
+		$sender->sendMessage($m4);
 		break;
 	}
 	//trueで取得するとOPなどしかブロックできないのでOPを含むワードを禁止にできるよう、敢えてelse
@@ -84,41 +74,46 @@ switch($cmd->getName()){
 	$bt2 = $this->config->get("Bantitle2");
 	$bt3 = $this->config->get("Bantitle3");
 	if (stripos($args[0], $bt1) === false) {}else{
-		$use->sendMessage($m4);
+		$sender->sendMessage($m4);
 		break;
 	}
 	if (stripos($args[0], $bt2) === false) {}else{
-		$use->sendMessage($m4);
+		$sender->sendMessage($m4);
 	}
 	if (stripos($args[0], $bt3) === false) {}else{
-		$use->sendMessage($m4);
+		$sender->sendMessage($m4);
 	}
-	$title = $args[0];
+	$degree = $args[0];
 
-/*<<-------------------------------------[reduceMoney]---------------------------------------------->>*/
-	if($this->getServer()->getPluginManager()->getPlugin("EconomyAPI") != null){
-		$this->EconomyAPI = $this->getServer()->getPluginManager()->getPlugin("EconomyAPI");
-		$this->EconomyAPI->reduceMoney($use->getName(), $cost);
-	}else{
-	if ($this->getServer()->getPluginManager()->getPlugin("PocketMoney") != null){
-		$this->PocketMoney = $this->getServer()->getPluginManager()->getPlugin("PocketMoney");
-		$plpl = PocketMoney::getInstance()->getMoney($use->getName());
-		$prize = $plpl - $cost;
-		$buyem = PocketMoney::getInstance()->getMoney($use->getName() - $cost);
-	}}
-/*<<------------------------------------------------------------------------------------------------>>*/
 	if(!isset($args[1])){
 		if($money < $cost){
-			$use->sendMessage($m3); break;
+			$sender->sendMessage($m3); break;
 		}
 		if($money > $cost){
-				$use->sendMessage("購入しました! 称号名:{$ww}".$title."{$w}");
-				$buyem;
-				$this->user->set($name, $title);
+				$sender->sendMessage("購入しました! 称号名:{$ww}".$degree."{$w}");
+				$this->onDelMoeny($sender, $cost);
+				$this->user->set($name, $degree);
 				$this->user->save();
 				return true;
 		}
-}}}
+	}
+
+	case "undegree":
+	if (empty($args[0])){
+		$sender->sendMessage($m5);
+		return;
+	}
+
+	if(!isset($args[1])){
+		if ($args[0] === "yes"){
+			$sender->sendMessage($m6);
+			$this->user->remove($name);
+			$this->user->save();
+			$coste = 1000000;
+			$this->onAddMoney($sender, $coste);
+		}
+	}
+}}
 return false;
 
 }
@@ -129,5 +124,45 @@ $name = $ec->getPlayer()->getName();
 $ms = $ec->getMessage();
 $prefix = $this->user->get($name);
 if($this->user->exists($name)){
-$ec->setMessage("[".$prefix."§r]".$ms);
-}else{}}}
+$ec->setMessage("[".$prefix."§r] ".$ms);
+}else{}}
+
+
+public function onMyMoney($sender){
+	if($this->getServer()->getPluginManager()->getPlugin("EconomyAPI") != null){
+		EconomyAPI::getInstance()->myMoney($sender->getName());
+	}elseif ($this->getServer()->getPluginManager()->getPlugin("PocketMoney") != null){
+		PocketMoney::getInstance()->getMoney($sender->getName());
+	}
+}
+public function onAddMoney($sender, $coste){
+	if($this->getServer()->getPluginManager()->getPlugin("EconomyAPI") != null){
+		EconomyAPI::getInstance()->addMoney($sender->getName(), +$coste);
+	}elseif ($this->getServer()->getPluginManager()->getPlugin("PocketMoney") != null){
+		PocketMoney::getInstance()->grantMoney($sender->getName() +$coste);
+	}
+}
+public function onDelMoeny($sender, $cost){
+	if($this->getServer()->getPluginManager()->getPlugin("EconomyAPI") != null){
+		EconomyAPI::getInstance()->reduceMoney($sender->getName(), $cost);
+	}elseif ($this->getServer()->getPluginManager()->getPlugin("PocketMoney") != null) {
+		PocketMoney::getInstance()->grantMoney($sender->getName() -$cost);
+	}
+}
+public function CheckMoneyplugins()
+{
+	$logger = $this->getServer()->getLogger();
+	if($this->getServer()->getPluginManager()->getPlugin("EconomyAPI") != null && $this->getServer()->getPluginManager()->getPlugin("PocketMoney") != null){
+		$logger->error("PocketMoneyとEconomyAPIの両方が検出されました。EconomyAPIが優先的に使用されます。");
+	}elseif($this->getServer()->getPluginManager()->getPlugin("EconomyAPI") != null){
+		$logger->info("§bEconomyAPI§rの検出をしました。");
+	}elseif($this->getServer()->getPluginManager()->getPlugin("PocketMoney") != null){
+		$logger->info("§bPocketMoney§rの検出をしました。");
+	}else{
+		$logger->error("EconomyAPI/PocketMoneyを検出できませんでした。プラグインを終了します。");
+		$this->getServer()->getPluginManager()->disablePlugin($this);
+	}
+}
+
+
+}

@@ -1,17 +1,31 @@
 ---
 name: CreateNameTag
-author: Shigure
-version: 2.8
-api: 3.0.0
+author: Nadare
+version: 4.1
+api: 
+- 1.0.0
+- 2.0.0
+- 3.0.0
+- 4.0.0
+- 5.0.0
 main: CONSOLE\CreateNameTag\Main
 commands:
-  title:
-    description: Original your title
+  degree:
+    description: Original your degree
+  undegree:
+    description: Remove your degree
 permissions:
- title:
+ degree:
   default: true
   description: "Allows using all the ip things"
   children:
-   title.command:
+   degree.command:
     default: true
     description: "Allows using all the ip commands"
+ undegree:
+  default: true
+  description: "Allows using all the ip things"
+  children:
+    undegree.command:
+      default: true
+      description: "Allows using all the ip commands"
