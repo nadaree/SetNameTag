@@ -119,13 +119,21 @@ return false;
 }
 public function Cht(\pocketmine\event\player\PlayerChatEvent $ec)
 {
+//コードの提供、metowa1227さん、KAMETANさん、有難うございます。
+$ww = $this->config->get("left");$w = $this->config->get("right");
+$online = $this->getServer()->getOnlinePlayers();
 $player = $ec->getPlayer();
 $name = $ec->getPlayer()->getName();
 $ms = $ec->getMessage();
 $prefix = $this->user->get($name);
 if($this->user->exists($name)){
-$ec->setMessage("[".$prefix."§r] ".$ms);
-}else{}}
+	foreach($online as $players){
+		$players->sendMessage($name." > "."{$ww}".$prefix."{$w}"." ".$ms);
+		$this->getServer()->getLogger()->info($name . " §6> §f"."{$ww}".$prefix."{$w}"." ".$ms);
+	}
+}
+$ec->setCancelled();
+}
 
 
 public function onMyMoney($sender){
